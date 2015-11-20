@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -63,8 +64,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mChecker.onDestroy();
+    }
+
     private class MyLicenseCheckerCallback implements LicenseCheckerCallback {
         public void allow(int policyReason) {
+
+            Log.d("MainActivity", "allow");
+
             if (isFinishing()) {
                 // Don't update UI if Activity is finishing.
                 return;
@@ -75,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void dontAllow(int policyReason) {
+
+            Log.d("MainActivity", "dontAllow");
+
             if (isFinishing()) {
                 // Don't update UI if Activity is finishing.
                 return;
@@ -94,6 +107,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void applicationError(int errorCode) {
+
+            Log.d("MainActivity", "applicationError");
+
             if (isFinishing()) {
                 // Don't update UI if Activity is finishing.
                 return;
