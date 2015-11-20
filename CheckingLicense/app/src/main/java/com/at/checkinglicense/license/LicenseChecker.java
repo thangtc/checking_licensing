@@ -16,9 +16,6 @@
 
 package com.at.checkinglicense.license;
 
-import com.google.android.vending.licensing.util.Base64;
-import com.google.android.vending.licensing.util.Base64DecoderException;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +27,9 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.Settings.Secure;
 import android.util.Log;
+
+import com.at.checkinglicense.license.util.Base64;
+import com.at.checkinglicense.license.util.Base64DecoderException;
 
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -45,12 +45,12 @@ import java.util.Set;
 
 /**
  * Client library for Android Market license verifications.
- * <p>
+ * <p/>
  * The LicenseChecker is configured via a {@link Policy} which contains the
  * logic to determine whether a user should have access to the application. For
  * example, the Policy can define a threshold for allowable number of server or
  * client failures before the library reports the user as not having access.
- * <p>
+ * <p/>
  * Must also provide the Base64-encoded RSA public key associated with your
  * developer account. The public key is obtainable from the publisher site.
  */
@@ -81,8 +81,8 @@ public class LicenseChecker implements ServiceConnection {
     private final Queue<LicenseValidator> mPendingChecks = new LinkedList<LicenseValidator>();
 
     /**
-     * @param context a Context
-     * @param policy implementation of Policy
+     * @param context          a Context
+     * @param policy           implementation of Policy
      * @param encodedPublicKey Base64-encoded RSA public key
      * @throws IllegalArgumentException if encodedPublicKey is invalid
      */
@@ -100,7 +100,7 @@ public class LicenseChecker implements ServiceConnection {
     /**
      * Generates a PublicKey instance from a string containing the
      * Base64-encoded public key.
-     * 
+     *
      * @param encodedPublicKey Base64-encoded public key
      * @throws IllegalArgumentException if encodedPublicKey is invalid
      */
@@ -124,13 +124,14 @@ public class LicenseChecker implements ServiceConnection {
 
     /**
      * Checks if the user should have access to the app.  Binds the service if necessary.
-     * <p>
+     * <p/>
      * NOTE: This call uses a trivially obfuscated string (base64-encoded).  For best security,
      * we recommend obfuscating the string that is passed into bindService using another method
      * of your own devising.
-     * <p>
+     * <p/>
      * source string: "com.android.vending.licensing.ILicensingService"
-     * <p>
+     * <p/>
+     *
      * @param callback
      */
     public synchronized void checkAccess(LicenseCheckerCallback callback) {
@@ -218,7 +219,7 @@ public class LicenseChecker implements ServiceConnection {
         // Runs in IPC thread pool. Post it to the Handler, so we can guarantee
         // either this or the timeout runs.
         public void verifyLicense(final int responseCode, final String signedData,
-                final String signature) {
+                                  final String signature) {
             mHandler.post(new Runnable() {
                 public void run() {
                     Log.i(TAG, "Received response.");
@@ -300,7 +301,9 @@ public class LicenseChecker implements ServiceConnection {
         }
     }
 
-    /** Unbinds service if necessary and removes reference to it. */
+    /**
+     * Unbinds service if necessary and removes reference to it.
+     */
     private void cleanupService() {
         if (mService != null) {
             try {
@@ -317,7 +320,7 @@ public class LicenseChecker implements ServiceConnection {
     /**
      * Inform the library that the context is about to be destroyed, so that any
      * open connections can be cleaned up.
-     * <p>
+     * <p/>
      * Failure to call this method can result in a crash under certain
      * circumstances, such as during screen rotation if an Activity requests the
      * license check or when the user exits the application.
@@ -327,14 +330,16 @@ public class LicenseChecker implements ServiceConnection {
         mHandler.getLooper().quit();
     }
 
-    /** Generates a nonce (number used once). */
+    /**
+     * Generates a nonce (number used once).
+     */
     private int generateNonce() {
         return RANDOM.nextInt();
     }
 
     /**
      * Get version code for the application package name.
-     * 
+     *
      * @param context
      * @param packageName application package name
      * @return the version code or empty string if package not found
