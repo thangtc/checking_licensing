@@ -1,11 +1,9 @@
 package com.at.checkinglicense;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -25,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
 
     private LicenseCheckerCallback mLicenseCheckerCallback;
     private LicenseChecker mChecker;
+    // A handler on the UI thread.
+    private Handler mHandler = new Handler();
 
     private TextView mTxtStatus;
 
@@ -32,17 +32,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         // Try to use more data here. ANDROID_ID is a single point of attack.
         String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -70,30 +59,38 @@ public class MainActivity extends AppCompatActivity {
         mChecker.onDestroy();
     }
 
+    private void displayResult(final String message) {
+        mHandler.post(new Runnable() {
+            public void run() {
+                mTxtStatus.setText(message);
+            }
+        });
+    }
+
     private class MyLicenseCheckerCallback implements LicenseCheckerCallback {
         public void allow(int policyReason) {
 
-            Log.d("MainActivity", "allow");
+            Log.d("MainActivity", "policyReason " + policyReason);
 
             if (isFinishing()) {
                 // Don't update UI if Activity is finishing.
                 return;
             }
 
-            mTxtStatus.setText("License OK");
+            displayResult("License OK");
 
         }
 
         public void dontAllow(int policyReason) {
 
-            Log.d("MainActivity", "dontAllow");
+            Log.d("MainActivity", "policyReason " + policyReason);
 
             if (isFinishing()) {
                 // Don't update UI if Activity is finishing.
                 return;
             }
 
-            mTxtStatus.setText("License not OK");
+            displayResult("License not OK");
 
             // Should not allow access. In most cases, the app should assume
             // the user has access unless it encounters this. If it does,
@@ -108,14 +105,14 @@ public class MainActivity extends AppCompatActivity {
 
         public void applicationError(int errorCode) {
 
-            Log.d("MainActivity", "applicationError");
+            Log.d("MainActivity", "errorCode " + errorCode);
 
             if (isFinishing()) {
                 // Don't update UI if Activity is finishing.
                 return;
             }
 
-            mTxtStatus.setText("Error " + errorCode);
+            displayResult("Error " + errorCode);
 
             // This is a polite way of saying the developer made a mistake
             // while setting up or calling the license checker library.
